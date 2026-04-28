@@ -1,0 +1,9 @@
+cmake-build-debug
+.venv
+__pycache__
+tests/test_data.csv
+tests/output.xml
+tests/report.html
+tests/log.html
+.sarif.json
+.robocop_cache

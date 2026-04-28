@@ -1,0 +1,31 @@
+# This version uses automatically created volumes
+# If the volumes don't exist when 'docker-compose up' is executed
+# the volumes are created. The name of volume is <project_name>_<volume_name>
+# By default <project_name> is the name of the directory in which docker-compose
+# is executed. For example, if you run 'docker-compose up' in directory 'test'
+# then 'jenkins_home' volume gets created with name 'test_jenkins_home'
+# We override the default behavior by setting volume name explicitly so the
+# volume name does not depend on the directory where compose file resides
+
+# The volumes are not removed when 'docker-compose down' is executed.
+
+# You can detach from the containers by starting them with 'docker-compose up --detach'
+
+version: "3.9"
+services:
+    pico:
+        build:
+            context: .
+        hostname: pico-build
+        volumes:
+        - .:/home/build
+        command:
+            sh -c 'cd /home/build && 
+            rm -rf cmake-build-debug && 
+            mkdir -p cmake-build-debug && 
+            cd cmake-build-debug && 
+            cmake .. && 
+            make'
+    
+
+        

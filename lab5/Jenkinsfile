@@ -1,0 +1,49 @@
+pipeline {
+  agent { label 'pico-build' }
+  stages {
+    stage('build & lint') {
+      parallel {
+        stage('build') {
+          steps {
+            sh 'docker compose up'
+            sh 'python3 -m venv ${VENV_PATH}'
+            sh '${VENV_PATH}/bin/pip install -r requirements.txt'
+          }
+        }
+        stage('lint') {
+          post {
+            always {
+              recordIssues tools: [sarif(pattern: '.sarif.json')]
+            }
+          }
+          steps {
+            sh '${VENV_PATH}/bin/robocop check --reports sarif'
+          }
+        }
+      }
+    }
+    stage('program') {
+      steps {
+        sh 'openocd -f ${INTERFACE} -f ${TARGET} -c "adapter speed 5000" -c "program ${BUILD_DIR}/atcmd.elf verify reset exit"'
+      }
+    }
+    stage('test') {
+      steps {
+        dir('tests') {
+          sh '${VENV_PATH}/bin/python gen_data.py'
+        }
+        sh '${VENV_PATH}/bin/robot --outputdir robot_output tests/'
+        robot(
+          archiveDirName: 'robot-plugin',
+          passThreshold: 90.0,
+          unstableThreshold: 70.0,
+          outputFileName: "output.xml",
+          logFileName: 'log.html',
+          reportFileName: 'report.html',
+          outputPath: 'robot_output',
+          overwriteXAxisLabel: ''
+        )
+      }
+    }
+  }
+}
