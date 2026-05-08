@@ -2,3 +2,5 @@
 **/__pycache__
 **/*.html
 **/*.xml
+lab1/key.pem
+lab1/config

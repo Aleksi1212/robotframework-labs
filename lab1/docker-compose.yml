@@ -1,0 +1,20 @@
+---
+services:
+  openssh-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: openssh-server
+    hostname: openssh-server #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUDO_ACCESS=false #optional
+      - PASSWORD_ACCESS=false #optional
+      - USER_NAME=ssh.user #optional
+      - LOG_STDOUT= #optional
+    volumes:
+      - ./config:/config
+    ports:
+      - 2222:2222
+    restart: unless-stopped
+
